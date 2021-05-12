@@ -39,6 +39,12 @@
 
 // CREATE ARTICLE
 
+
+
+
+let container = document.querySelector(".image-container")
+
+
 function createCard(cardData) {
 
 let cardEl = document.createElement("article")
@@ -59,7 +65,7 @@ cardEl.append(likesSectionEl)
 
 let likeEl = document.createElement("span")
 likeEl.setAttribute("class", "likes")
-likeEl.innerText = cardData.likes
+likeEl.innerText = `${cardData.likes}likes`
 likesSectionEl.append(likeEl)
 
 let likeButtonEl = document.createElement("button")
@@ -72,10 +78,16 @@ commentEl.setAttribute("class", "comments")
 commentEl.setAttribute("id", cardData.comments.content)
 cardEl.append(commentEl)
 
+for(const comment of cardData.comments) {
+    const liEl = document.createElement("li")
+    liEl.innerText = comment.content
+    commentEl.append(liEl)
+}
 
 let commentForm = document.createElement("form")
 commentForm.setAttribute("class", "comment-form")
 cardEl.append(commentForm)
+
 
 let commentInput = document.createElement("input")
 commentInput.setAttribute("class", "comment-input")
@@ -89,14 +101,36 @@ submitButton.setAttribute("type", "submit")
 submitButton.innerText = "Post"
 commentForm.append(submitButton)
 
+
+container.append(cardEl)
+
+
+likeButtonEl.addEventListener("click", function(){
+    fetch(`http://localhost:3000/images/${cardData.id}` , {
+        method: "PATCH",
+        headers: {
+            "Content-Type" : "application/json"
+        },
+        body: JSON.stringify({
+            likes: (cardData.likes += 1)
+        })
+    })
+    .then(function(response) {
+    return response.json()
+})
+.then(function(data){
+    // console.log(data)
+    likeEl.innerText = `${data.likes} likes`
+})
+})
+
 }
 
-let container = document.querySelector(".image-container")
+
 
 function creatAllCard(cards){
 for(const card of cards ) {
     const createdCard = createCard(card)
-    container.append(createdCard)
 }
 }
 
@@ -111,3 +145,28 @@ return data
     console.log("Second log", data)
     creatAllCard(data)
 })
+
+
+// likeButtonEl.addEventListener("click", function(){
+//     fetch( "http://localhost:3000/images/1" , {
+//         method: "PATCH",
+//         Headers: {
+//             "Content-Type" : "application/json"
+//         },
+//         body: JSON.stringify({"likes": cardData.id})
+//     })
+// .then(function(response) {
+// console.log(response.json())
+// })
+// })
+
+
+
+
+// - Have the like button adding 1 like to the respective counter each time you click it, and display the changes
+
+
+
+
+// - Have the comments form to add another comment to the respective post, and display the changes
+// - The data must be persisted in the server so that when you refresh the page it doesn't go away
